@@ -36,8 +36,8 @@ describe('Recipes', function(){
   // when new recipe added, ensure has required fields. if not,
   // log error and return 400 status code with hepful message.
   // if okay, add new item, and return it with a status 201.
-  it.only('should add new item and return it with a status 201', function(){
-    newRecipe = {name: 'cake', ingredients: ['butter', 'flour']}
+  it('should add new item and return it with a status 201', function(){
+    const newRecipe = {name: 'cake', ingredients: ['butter', 'flour']}
     return chai.request(app)
     .post('/recipes')
     .send(newRecipe)
@@ -51,5 +51,34 @@ describe('Recipes', function(){
     });
   });
 
+  it('should updated recipe on PUT', function(){
+    const updateInfo = {name: 'new name', ingredients: ['other', 'ingredients']}
+
+    return chai.request(app)
+    .get('/recipes')
+    .then(function(res){
+      updateInfo.id = res.body[0].id;
+      return chai.request(app)
+      .put(`/recipes/${updateInfo.id}`)
+      .send(updateInfo);
+    })
+    .then(function(res){
+      res.should.have.status(200);
+      res.body.should.deep.equal(updateInfo);
+      res.should.be.json;
+    });
+  });
+
+  it('should delete recipe on DELETE', function(){
+    return chai.request(app)
+    .get('/recipes')
+    .then(function(res){
+      return chai.request(app)
+      .delete(`/recipes/${res.body[0].id}`)
+    })
+    .then(function(res){
+      res.should.have.status(204);
+    });
+  });
 
 });
